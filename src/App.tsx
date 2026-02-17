@@ -25,7 +25,15 @@ import AdminConfig from "./pages/admin/AdminConfig";
 const queryClient = new QueryClient();
 
 function AppRoutes() {
-  const { user } = useAuth();
+  const { user, role, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 rounded-lg gradient-primary animate-pulse-glow" />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -35,9 +43,11 @@ function AppRoutes() {
     );
   }
 
+  const defaultPath = role ? `/${role}` : "/student";
+
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={`/${user.role}`} replace />} />
+      <Route path="/" element={<Navigate to={defaultPath} replace />} />
 
       <Route path="/student" element={<StudentDashboard />} />
       <Route path="/student/courses" element={<StudentCourses />} />

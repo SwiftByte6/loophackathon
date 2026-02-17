@@ -1,9 +1,9 @@
 import { useAuth, UserRole } from "@/contexts/AuthContext";
 import { NavLink } from "@/components/NavLink";
 import {
-  LayoutDashboard, BookOpen, Bot, BarChart3, Settings,
-  Users, Shield, FileText, AlertTriangle, Brain,
-  GraduationCap, Upload, Eye, Activity, LogOut,
+  LayoutDashboard, BookOpen, Bot, BarChart3,
+  Users, Shield, FileText, Brain,
+  GraduationCap, Eye, Settings, LogOut,
 } from "lucide-react";
 
 const navItems: Record<UserRole, { title: string; url: string; icon: React.ElementType }[]> = {
@@ -30,10 +30,12 @@ const navItems: Record<UserRole, { title: string; url: string; icon: React.Eleme
 };
 
 export function AppSidebar() {
-  const { user, logout } = useAuth();
-  if (!user) return null;
+  const { profile, role, signOut } = useAuth();
+  if (!role) return null;
 
-  const items = navItems[user.role];
+  const items = navItems[role];
+  const displayName = profile?.full_name || profile?.email || "User";
+  const initials = displayName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <aside className="w-60 min-h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
@@ -44,7 +46,7 @@ export function AppSidebar() {
           </div>
           <div>
             <h1 className="text-sm font-bold text-sidebar-accent-foreground">AcademicAI</h1>
-            <p className="text-[10px] text-sidebar-foreground capitalize">{user.role} Portal</p>
+            <p className="text-[10px] text-sidebar-foreground capitalize">{role} Portal</p>
           </div>
         </div>
       </div>
@@ -54,7 +56,7 @@ export function AppSidebar() {
           <NavLink
             key={item.url}
             to={item.url}
-            end={item.url === `/${user.role}`}
+            end={item.url === `/${role}`}
             className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
             activeClassName="bg-sidebar-accent text-primary font-medium"
           >
@@ -67,15 +69,15 @@ export function AppSidebar() {
       <div className="p-3 border-t border-sidebar-border">
         <div className="flex items-center gap-3 px-3 py-2 mb-2">
           <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold text-secondary-foreground">
-            {user.name.split(" ").map(n => n[0]).join("")}
+            {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-sidebar-accent-foreground truncate">{user.name}</p>
-            <p className="text-[10px] text-sidebar-foreground truncate">{user.email}</p>
+            <p className="text-xs font-medium text-sidebar-accent-foreground truncate">{displayName}</p>
+            <p className="text-[10px] text-sidebar-foreground truncate">{profile?.email}</p>
           </div>
         </div>
         <button
-          onClick={logout}
+          onClick={signOut}
           className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-destructive transition-colors w-full"
         >
           <LogOut className="w-4 h-4" />
