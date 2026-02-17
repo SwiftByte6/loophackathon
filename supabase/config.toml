@@ -1,1 +1,4 @@
 project_id = "ysxtrnbeblrdnclkndzj"
+
+[functions.academic-chat]
+verify_jwt = false
