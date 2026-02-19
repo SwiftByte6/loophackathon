@@ -18,11 +18,11 @@ React + Vite app for a university learning platform with student, faculty, and a
 - UI sends requests to the Edge Function: [src/pages/student/AIAgent.tsx](src/pages/student/AIAgent.tsx)
 - Edge Function calls the AI gateway and sets the system policy: [supabase/functions/academic-chat/index.ts](supabase/functions/academic-chat/index.ts)
 
-**Model used:** `google/gemini-3-flash-preview` (via Lovable AI gateway)
+**Model used:** `gpt-4-turbo` (via OpenAI API)
 
 **Required configuration:**
 
-- `LOVABLE_API_KEY` in the Edge Function environment
+- `OPENAI_API_KEY` in the Edge Function environment
 - `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in the frontend environment
 
 **Notes:**
