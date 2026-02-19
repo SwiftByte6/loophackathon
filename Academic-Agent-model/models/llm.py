@@ -1,25 +1,18 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-import torch
+import os
+from openai import OpenAI
 
-MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+print("Using OpenRouter Trinity LLM")
 
-print("Loading local LLM...(first time may take ~30 seconds)")
-
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-
-# Load model in FP16 + automatic device placement
-model = AutoModelForCausalLM.from_pretrained(
-    MODEL_NAME,
-    torch_dtype=torch.float16,
-    device_map="auto"
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.environ["OPENROUTER_API_KEY"],
+    default_headers={
+        "HTTP-Referer": "http://localhost",
+        "X-Title": "Academic-Agent"
+    }
 )
 
-generator = pipeline(
-    "text-generation",
-    model=model,
-    tokenizer=tokenizer,
-    max_new_tokens=200
-)
+MODEL_NAME = "arcee-ai/trinity-large-preview:free"
 
 
 def generate_answer(context_chunks, question):
@@ -43,6 +36,14 @@ If answer not found in context, say:
 Answer:
 """
 
-    output = generator(prompt)[0]["generated_text"]
+    response = client.chat.completions.create(
+        model=MODEL_NAME,
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        extra_body={"reasoning": {"enabled": True}}
+    )
 
-    return output.split("Answer:")[-1].strip()
+    msg = response.choices[0].message
+
+    return msg.content.strip()
