@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 import Login from "./pages/Login";
+import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentCourses from "./pages/student/StudentCourses";
@@ -25,7 +26,7 @@ import AdminConfig from "./pages/admin/AdminConfig";
 const queryClient = new QueryClient();
 
 function AppRoutes() {
-  const { user, role, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -38,16 +39,15 @@ function AppRoutes() {
   if (!user) {
     return (
       <Routes>
-        <Route path="*" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }
 
-  const defaultPath = role ? `/${role}` : "/student";
-
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={defaultPath} replace />} />
+      <Route path="/" element={<Index />} />
 
       <Route path="/student" element={<StudentDashboard />} />
       <Route path="/student/courses" element={<StudentCourses />} />

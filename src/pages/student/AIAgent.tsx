@@ -19,7 +19,9 @@ const modes: { id: Mode; label: string; icon: React.ElementType; desc: string }[
 
 const quickActions = ["Explain simpler", "Give an example", "Test me", "Show visual summary"];
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/academic-chat`;
+const CHAT_URL =
+  import.meta.env.VITE_AI_CHAT_URL ||
+  "http://localhost:8000/chat";
 
 export default function AIAgent() {
   const [mode, setMode] = useState<Mode>("exam_prep");
@@ -50,7 +52,6 @@ export default function AIAgent() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
           messages: newMessages.filter(m => m.id !== "welcome").map(m => ({ role: m.role, content: m.content })),

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, BookOpen, Users, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
@@ -24,12 +24,50 @@ export default function Login() {
         toast({ variant: "destructive", title: "Sign up failed", description: error.message });
       } else {
         toast({ title: "Check your email", description: "We've sent you a verification link to confirm your account." });
+        setIsSignUp(false);
+        setEmail("");
+        setPassword("");
+        setFullName("");
       }
     } else {
       const { error } = await signIn(email, password);
       if (error) {
         toast({ variant: "destructive", title: "Sign in failed", description: error.message });
+      } else {
+        navigate("/");
       }
+    }
+    setIsLoading(false);
+  };
+
+  const demoLogins = [
+    {
+      role: "Student",
+      email: "student@university.edu",
+      icon: <BookOpen className="w-4 h-4" />,
+      color: "from-blue-500 to-cyan-500",
+    },
+    {
+      role: "Faculty",
+      email: "faculty@university.edu",
+      icon: <Users className="w-4 h-4" />,
+      color: "from-purple-500 to-pink-500",
+    },
+    {
+      role: "Admin",
+      email: "admin@university.edu",
+      icon: <Shield className="w-4 h-4" />,
+      color: "from-orange-500 to-red-500",
+    },
+  ];
+
+  const handleDemoLogin = async (demoEmail: string) => {
+    setIsLoading(true);
+    const { error } = await signIn(demoEmail, "password");
+    if (!error) {
+      navigate("/");
+    } else {
+      toast({ variant: "destructive", title: "Login failed", description: error.message });
     }
     setIsLoading(false);
   };
@@ -41,8 +79,35 @@ export default function Login() {
           <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3 glow-primary">
             <GraduationCap className="w-7 h-7 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">AcademicAI</h1>
+          <h1 className="text-2xl font-bold text-foreground">Curriculum Companion</h1>
           <p className="text-sm text-muted-foreground mt-1">AI-Powered Academic Companion</p>
+        </div>
+
+        {!isSignUp && (
+          <div className="space-y-3">
+            <p className="text-xs font-semibold text-muted-foreground uppercase text-center tracking-wider">
+              Demo Login
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {demoLogins.map((demo) => (
+                <button
+                  key={demo.email}
+                  onClick={() => handleDemoLogin(demo.email)}
+                  disabled={isLoading}
+                  className={`p-3 rounded-lg bg-gradient-to-br ${demo.color} hover:shadow-lg transition-all disabled:opacity-50 text-white text-center`}
+                >
+                  <div className="flex justify-center mb-1">{demo.icon}</div>
+                  <p className="text-xs font-semibold">{demo.role}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-px bg-border" />
+          <p className="text-xs text-muted-foreground">or</p>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

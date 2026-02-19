@@ -1,73 +1,108 @@
-# Welcome to your Lovable project
+# Curriculum Companion
 
-## Project info
+React + Vite app for a university learning platform with student, faculty, and admin dashboards. The AI features are split between a Supabase Edge Function (live chat in the app) and a standalone Python RAG pipeline (Academic-Agent-model).
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## App structure
 
-## How can I edit this code?
+- Frontend routes and dashboards live under [src/pages](src/pages).
+- The student AI chat UI is in [src/pages/student/AIAgent.tsx](src/pages/student/AIAgent.tsx).
+- The AI request handler is a Supabase Edge Function in [supabase/functions/academic-chat/index.ts](supabase/functions/academic-chat/index.ts).
+- The standalone academic agent RAG pipeline lives in [Academic-Agent-model](Academic-Agent-model).
 
-There are several ways of editing your application.
+## Where the models are required
 
-**Use Lovable**
+### 1) Live AI chat (in-app)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+**Used by:** Student AI chat UI and Edge Function.
 
-Changes made via Lovable will be committed automatically to this repo.
+- UI sends requests to the Edge Function: [src/pages/student/AIAgent.tsx](src/pages/student/AIAgent.tsx)
+- Edge Function calls the AI gateway and sets the system policy: [supabase/functions/academic-chat/index.ts](supabase/functions/academic-chat/index.ts)
 
-**Use your preferred IDE**
+**Model used:** `google/gemini-3-flash-preview` (via Lovable AI gateway)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Required configuration:**
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- `LOVABLE_API_KEY` in the Edge Function environment
+- `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in the frontend environment
 
-Follow these steps:
+**Notes:**
+
+- This path enforces academic integrity rules inside the system prompt.
+- Streaming is enabled and handled in the client.
+
+### 2) Academic-Agent-model (standalone Python RAG)
+
+**Used by:** CLI scripts for ingestion, retrieval, adaptive tutoring, and analytics.
+
+Core files:
+
+- Ingest PDFs and build vector DB: [Academic-Agent-model/ingestion.py](Academic-Agent-model/ingestion.py)
+- Query loop with integrity checks and adaptive answer flow: [Academic-Agent-model/ragQuery/ragQuery.py](Academic-Agent-model/ragQuery/ragQuery.py)
+- Local LLM wrapper: [Academic-Agent-model/models/llm.py](Academic-Agent-model/models/llm.py)
+- Adaptive tutoring logic: [Academic-Agent-model/models/adaptiveAnswer.py](Academic-Agent-model/models/adaptiveAnswer.py)
+- Misconception detection: [Academic-Agent-model/models/misconceptionDetector.py](Academic-Agent-model/models/misconceptionDetector.py)
+- Student mastery tracking: [Academic-Agent-model/models/studentModel.py](Academic-Agent-model/models/studentModel.py)
+- Topic mapping: [Academic-Agent-model/models/topicMapper.py](Academic-Agent-model/models/topicMapper.py)
+- Teacher analytics: [Academic-Agent-model/models/teacherAnalytics.py](Academic-Agent-model/models/teacherAnalytics.py)
+- Integrity guard: [Academic-Agent-model/models/integrityGuard.py](Academic-Agent-model/models/integrityGuard.py)
+
+**Models used:**
+
+- Sentence embedding: `sentence-transformers/static-retrieval-mrl-en-v1`
+- Local LLM: `TinyLlama/TinyLlama-1.1B-Chat-v1.0`
+
+**Required inputs and data:**
+
+- PDFs at `Academic-Agent-model/data/raw_pdfs`
+- Vector DB output at `Academic-Agent-model/vector_db` (creates `index.faiss` and `documents.pkl`)
+- Student state at `Academic-Agent-model/data/student_db.json`
+
+**Dependencies (Python):**
+
+- `sentence-transformers`, `faiss`, `pypdf`, `transformers`, `torch`, `numpy`, `langchain-text-splitters`
+
+**Notes:**
+
+- This pipeline is currently standalone and not wired into the React app or the Supabase Edge Function.
+- Run ingestion before running the query loop so the vector DB exists.
+
+## Development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Connect the model to the app (local)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1) Install Python dependencies:
 
-**Use GitHub Codespaces**
+```sh
+pip install -r Academic-Agent-model/requirements.txt
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2) Build the vector DB first:
 
-## What technologies are used for this project?
+```sh
+python Academic-Agent-model/ingestion.py
+```
 
-This project is built with:
+3) Start the local API server:
+
+```sh
+python -m uvicorn Academic-Agent-model.api_server:app --reload --port 8000
+```
+
+4) Point the frontend to the local server:
+
+- Set `VITE_AI_CHAT_URL=http://localhost:8000/chat`
+- Restart `npm run dev`
+
+## Tech stack
 
 - Vite
-- TypeScript
 - React
-- shadcn-ui
+- TypeScript
 - Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- shadcn-ui
+- Supabase (Edge Functions)

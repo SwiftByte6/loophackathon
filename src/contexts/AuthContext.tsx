@@ -1,8 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
 
 export type UserRole = "student" | "faculty" | "admin";
+
+interface DummyUser {
+  id: string;
+  email: string;
+  user_metadata?: { full_name: string };
+}
 
 interface Profile {
   id: string;
@@ -12,8 +16,8 @@ interface Profile {
 }
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: DummyUser | null;
+  session: { user: DummyUser } | null;
   profile: Profile | null;
   role: UserRole | null;
   loading: boolean;
@@ -24,70 +28,97 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// Dummy role assignment based on email
+const getRoleForEmail = (email: string): UserRole => {
+  if (email.includes("admin")) return "admin";
+  if (email.includes("faculty") || email.includes("prof")) return "faculty";
+  return "student";
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<DummyUser | null>(null);
+  const [session, setSession] = useState<{ user: DummyUser } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfileAndRole = async (userId: string) => {
-    const [profileRes, roleRes] = await Promise.all([
-      supabase.from("profiles").select("*").eq("user_id", userId).single(),
-      supabase.from("user_roles").select("role").eq("user_id", userId).single(),
-    ]);
-    if (profileRes.data) setProfile(profileRes.data as Profile);
-    if (roleRes.data) setRole(roleRes.data.role as UserRole);
-  };
-
+  // Check if user is already logged in (from localStorage)
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        setTimeout(() => fetchProfileAndRole(session.user.id), 0);
-      } else {
-        setProfile(null);
-        setRole(null);
-      }
-      setLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfileAndRole(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    const savedUser = localStorage.getItem("dummyUser");
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      setUser(parsedUser);
+      setSession({ user: parsedUser });
+      
+      const userRole = getRoleForEmail(parsedUser.email);
+      setRole(userRole);
+      
+      setProfile({
+        id: parsedUser.id,
+        full_name: parsedUser.user_metadata?.full_name || parsedUser.email.split("@")[0],
+        email: parsedUser.email,
+        avatar_url: null,
+      });
+    }
+    setLoading(false);
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+    // Dummy sign up - just create a user object
+    const dummyUser: DummyUser = {
+      id: `user_${Date.now()}`,
       email,
-      password,
-      options: {
-        data: { full_name: fullName },
-        emailRedirectTo: window.location.origin,
-      },
+      user_metadata: { full_name: fullName },
+    };
+
+    const userRole = getRoleForEmail(email);
+    setUser(dummyUser);
+    setSession({ user: dummyUser });
+    setRole(userRole);
+    setProfile({
+      id: dummyUser.id,
+      full_name: fullName,
+      email,
+      avatar_url: null,
     });
-    return { error: error as Error | null };
+
+    // Save to localStorage
+    localStorage.setItem("dummyUser", JSON.stringify(dummyUser));
+
+    return { error: null };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
+    // Dummy sign in - accept any credentials
+    const dummyUser: DummyUser = {
+      id: `user_${Date.now()}`,
+      email,
+      user_metadata: { full_name: email.split("@")[0] },
+    };
+
+    const userRole = getRoleForEmail(email);
+    setUser(dummyUser);
+    setSession({ user: dummyUser });
+    setRole(userRole);
+    setProfile({
+      id: dummyUser.id,
+      full_name: email.split("@")[0],
+      email,
+      avatar_url: null,
+    });
+
+    // Save to localStorage
+    localStorage.setItem("dummyUser", JSON.stringify(dummyUser));
+
+    return { error: null };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setProfile(null);
     setRole(null);
+    localStorage.removeItem("dummyUser");
   };
 
   return (
