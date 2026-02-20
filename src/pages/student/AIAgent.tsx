@@ -20,8 +20,9 @@ const modes: { id: Mode; label: string; icon: React.ElementType; desc: string }[
 const quickActions = ["Explain simpler", "Give an example", "Test me", "Show visual summary"];
 
 const CHAT_URL =
+  import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_AI_CHAT_URL ||
-  "http://localhost:8000/chat";
+  "https://loophackathon-1.onrender.com/chat";
 
 export default function AIAgent() {
   const [mode, setMode] = useState<Mode>("exam_prep");
