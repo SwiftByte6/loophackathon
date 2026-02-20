@@ -1,108 +1,86 @@
-# Curriculum Companion
+# 🎓 Academic AI (Curriculum Companion)
 
-React + Vite app for a university learning platform with student, faculty, and admin dashboards. The AI features are split between a Supabase Edge Function (live chat in the app) and a standalone Python RAG pipeline (Academic-Agent-model).
+> **An AI-powered academic companion designed to personalize student learning, prevent cheating, and provide deep analytics to educators.**
 
-## App structure
+Built natively to eliminate the "one size fits all" approach to education by using a highly specialized, local Retrieval-Augmented Generation (RAG) pipeline combined with an adaptive LLM.
 
-- Frontend routes and dashboards live under [src/pages](src/pages).
-- The student AI chat UI is in [src/pages/student/AIAgent.tsx](src/pages/student/AIAgent.tsx).
-- The AI request handler is a Supabase Edge Function in [supabase/functions/academic-chat/index.ts](supabase/functions/academic-chat/index.ts).
-- The standalone academic agent RAG pipeline lives in [Academic-Agent-model](Academic-Agent-model).
+---
 
-## Where the models are required
+## 🚀 The Problem
+Modern education faces three critical challenges:
+1. **Lack of Personalization:** Students fall behind because standard curricula cannot adapt to their unique misconceptions or learning pace.
+2. **Academic Integrity:** With the rise of generalized LLMs (like ChatGPT), students often use AI to bypass reasoning rather than enhance it. 
+3. **Teacher Blindspots:** Educators lack real-time visibility into *exactly* what concepts their class is struggling to grasp.
 
-### 1) Live AI chat (in-app)
+## 💡 Our Solution
+**Academic AI** is an intelligent ecosystem split into three distinct dashboards (Student, Faculty, Admin), powered by a secure FastAPI + FAISS vector database backend. 
 
-**Used by:** Student AI chat UI and Edge Function.
+### Key Features
+* 🧠 **Adaptive AI Tutor:** Unlike normal chatbots, our AI specifically fetches the student's *past misconceptions* and forces the LLM to explain concepts simply and address past mistakes.
+* 🛡️ **Integrity Guard:** The system actively intercepts prompt-injection or "do my homework" requests, pushing the student back to Socratic learning.
+* 📊 **Faculty Analytics (Topic Mapper):** AI automatically clusters student questions to show teachers exactly which textbook topics need more attention in the next lecture.
+* ⚡ **Local RAG Pipeline:** PDF textbooks are ingested, semantic-chunked using `langchain`, and securely embedded using local `SentenceTransformers`—ensuring no proprietary university data leaks to third parties.
 
-- UI sends requests to the Edge Function: [src/pages/student/AIAgent.tsx](src/pages/student/AIAgent.tsx)
-- Edge Function calls the AI gateway and sets the system policy: [supabase/functions/academic-chat/index.ts](supabase/functions/academic-chat/index.ts)
+---
 
-**Model used:** `gpt-4-turbo` (via OpenAI API)
+## 🏗️ Technical Architecture
 
-**Required configuration:**
+Our project applies a **Modular Monolith / Microservice** structure:
 
-- `OPENAI_API_KEY` in the Edge Function environment
-- `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in the frontend environment
+* **Frontend:** React 18, Vite, Tailwind CSS, Shadcn UI, Recharts for analytics.
+* **Backend:** FastAPI (Python) for asynchronous AI routing and logic.
+* **Database & Auth:** Supabase (PostgreSQL + JWT Authentication).
+* **Vector Engine:** FAISS (Facebook AI Similarity Search) running locally for sub-millisecond document retrieval context mapping.
+* **Embedding Model:** `sentence-transformers/static-retrieval-mrl-en-v1` (Running locally on CPU constraint).
+* **LLM Engine:** OpenRouter API routing to `arcee-ai/trinity-large-preview:free` for fast, intelligent inference.
 
-**Notes:**
+---
 
-- This path enforces academic integrity rules inside the system prompt.
-- Streaming is enabled and handled in the client.
+## ⚙️ How to Run Locally
 
-### 2) Academic-Agent-model (standalone Python RAG)
+Because this system relies on a local Vector DB and a Python backend, follow these steps closely.
 
-**Used by:** CLI scripts for ingestion, retrieval, adaptive tutoring, and analytics.
-
-Core files:
-
-- Ingest PDFs and build vector DB: [Academic-Agent-model/ingestion.py](Academic-Agent-model/ingestion.py)
-- Query loop with integrity checks and adaptive answer flow: [Academic-Agent-model/ragQuery/ragQuery.py](Academic-Agent-model/ragQuery/ragQuery.py)
-- Local LLM wrapper: [Academic-Agent-model/models/llm.py](Academic-Agent-model/models/llm.py)
-- Adaptive tutoring logic: [Academic-Agent-model/models/adaptiveAnswer.py](Academic-Agent-model/models/adaptiveAnswer.py)
-- Misconception detection: [Academic-Agent-model/models/misconceptionDetector.py](Academic-Agent-model/models/misconceptionDetector.py)
-- Student mastery tracking: [Academic-Agent-model/models/studentModel.py](Academic-Agent-model/models/studentModel.py)
-- Topic mapping: [Academic-Agent-model/models/topicMapper.py](Academic-Agent-model/models/topicMapper.py)
-- Teacher analytics: [Academic-Agent-model/models/teacherAnalytics.py](Academic-Agent-model/models/teacherAnalytics.py)
-- Integrity guard: [Academic-Agent-model/models/integrityGuard.py](Academic-Agent-model/models/integrityGuard.py)
-
-**Models used:**
-
-- Sentence embedding: `sentence-transformers/static-retrieval-mrl-en-v1`
-- Local LLM: `TinyLlama/TinyLlama-1.1B-Chat-v1.0`
-
-**Required inputs and data:**
-
-- PDFs at `Academic-Agent-model/data/raw_pdfs`
-- Vector DB output at `Academic-Agent-model/vector_db` (creates `index.faiss` and `documents.pkl`)
-- Student state at `Academic-Agent-model/data/student_db.json`
-
-**Dependencies (Python):**
-
-- `sentence-transformers`, `faiss`, `pypdf`, `transformers`, `torch`, `numpy`, `langchain-text-splitters`
-
-**Notes:**
-
-- This pipeline is currently standalone and not wired into the React app or the Supabase Edge Function.
-- Run ingestion before running the query loop so the vector DB exists.
-
-## Development
-
-```sh
+### 1. Clone & Environment Setup
+Clone the repository and install the frontend dependencies:
+```bash
 npm install
-npm run dev
 ```
 
-## Connect the model to the app (local)
-
-1) Install Python dependencies:
-
-```sh
-pip install -r Academic-Agent-model/requirements.txt
+Create a `.env` file in the root directory and add your keys:
+```env
+VITE_SUPABASE_PROJECT_ID="your_project_id"
+VITE_SUPABASE_PUBLISHABLE_KEY="your_anon_key"
+VITE_SUPABASE_URL="https://your-project.supabase.co"
+OPENROUTER_API_KEY="sk-or-your-key-here"
 ```
 
-2) Build the vector DB first:
-
-```sh
-python Academic-Agent-model/ingestion.py
+### 2. Setup the AI Backend
+Navigate into the Python model directory and install dependencies:
+```bash
+cd Academic-Agent-model
+pip install -r requirements.txt
 ```
 
-3) Start the local API server:
-
-```sh
-python -m uvicorn Academic-Agent-model.api_server:app --reload --port 8000
+### 3. Ingest Data (Build Vector DB)
+*Place any sample educational PDFs inside `Academic-Agent-model/data/raw_pdfs`.*
+Run the ingestion script to chunk the text and create the FAISS index:
+```bash
+python ingestion.py
 ```
 
-4) Point the frontend to the local server:
+### 4. Run the Full Stack
+We have configured a concurrent script to launch both the React Frontend and the FastAPI backend simultaneously!
+Go back to the root directory and run:
+```bash
+npm run dev:all
+```
 
-- Set `VITE_AI_CHAT_URL=http://localhost:8000/chat`
-- Restart `npm run dev`
+* **Frontend:** `http://localhost:5173`
+* **FastAPI Backend:** `http://localhost:8000`
 
-## Tech stack
+---
 
-- Vite
-- React
-- TypeScript
-- Tailwind CSS
-- shadcn-ui
-- Supabase (Edge Functions)
+## 🔮 What's Next?
+* **Audio Voice Companion:** Integrating Whisper (Speech-to-Text) and ElevenLabs (Text-to-Speech) for fully hands-free tutoring sessions.
+* **Direct Canvas/Blackboard Integration:** Pulling assignment due dates and syllabus PDFs automatically via LTI standards.
+* **pgvector Migration:** Moving from the local FAISS pickle store directly into Supabase `pgvector` for horizontal scaling across hundreds of campuses.
