@@ -38,50 +38,50 @@ export function AppSidebar() {
   const initials = displayName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <aside className="w-60 min-h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
-      <div className="p-5 border-b border-sidebar-border">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-            <GraduationCap className="w-4 h-4 text-primary-foreground" />
+    <aside className="w-[80px] lg:w-[260px] h-full bg-sidebar rounded-[2.5rem] flex flex-col shadow-2xl overflow-hidden shrink-0 border border-white/5 transition-all duration-300">
+      <div className="p-6 border-b border-white/5 flex items-center justify-center lg:justify-start">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shrink-0">
+            <GraduationCap className="w-6 h-6 text-black" />
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-sidebar-accent-foreground">AcademicAI</h1>
-            <p className="text-[10px] text-sidebar-foreground capitalize">{role} Portal</p>
+          <div className="hidden lg:block">
+            <h1 className="text-base font-bold text-white tracking-wide">AcademicAI</h1>
+            <p className="text-[11px] text-zinc-400 capitalize -mt-0.5">{role} Portal</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 py-6 space-y-2 overflow-y-auto no-scrollbar px-3 overflow-x-hidden">
         {items.map((item) => (
           <NavLink
             key={item.url}
             to={item.url}
             end={item.url === `/${role}`}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-            activeClassName="bg-sidebar-accent text-primary font-medium"
+            className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm text-zinc-400 hover:bg-white/10 hover:text-white transition-all justify-center lg:justify-start"
+            activeClassName="bg-white/10 text-white font-semibold"
           >
-            <item.icon className="w-4 h-4" />
-            <span>{item.title}</span>
+            <item.icon className="w-5 h-5 shrink-0" />
+            <span className="hidden lg:inline">{item.title}</span>
           </NavLink>
         ))}
       </nav>
 
-      <div className="p-3 border-t border-sidebar-border">
-        <div className="flex items-center gap-3 px-3 py-2 mb-2">
-          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold text-secondary-foreground">
+      <div className="p-4 border-t border-white/5">
+        <div className="flex items-center gap-3 px-2 py-3 mb-2 rounded-2xl bg-white/5 justify-center lg:justify-start">
+          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-sm font-bold text-black shrink-0">
             {initials}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-sidebar-accent-foreground truncate">{displayName}</p>
-            <p className="text-[10px] text-sidebar-foreground truncate">{profile?.email}</p>
+          <div className="flex-1 min-w-0 hidden lg:block">
+            <p className="text-sm font-semibold text-white truncate">{displayName}</p>
+            <p className="text-xs text-zinc-400 truncate">{profile?.email}</p>
           </div>
         </div>
         <button
           onClick={signOut}
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-destructive transition-colors w-full"
+          className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm text-zinc-400 hover:bg-white/10 hover:text-red-400 transition-all w-full justify-center lg:justify-start"
         >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
+          <LogOut className="w-5 h-5 shrink-0" />
+          <span className="hidden lg:inline">Sign Out</span>
         </button>
       </div>
     </aside>

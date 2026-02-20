@@ -44,20 +44,20 @@ export default function Login() {
     {
       role: "Student",
       email: "student@university.edu",
-      icon: <BookOpen className="w-4 h-4" />,
-      color: "from-blue-500 to-cyan-500",
+      icon: <BookOpen className="w-5 h-5 stroke-[1.5]" />,
+      color: "from-[#2b8df4] to-[#12cff8]",
     },
     {
       role: "Faculty",
       email: "faculty@university.edu",
-      icon: <Users className="w-4 h-4" />,
-      color: "from-purple-500 to-pink-500",
+      icon: <Users className="w-5 h-5 stroke-[1.5]" />,
+      color: "from-[#b241ed] to-[#ef4d9b]",
     },
     {
       role: "Admin",
       email: "admin@university.edu",
-      icon: <Shield className="w-4 h-4" />,
-      color: "from-orange-500 to-red-500",
+      icon: <Shield className="w-5 h-5 stroke-[1.5]" />,
+      color: "from-[#fb6d3f] to-[#f63d30]",
     },
   ];
 
@@ -73,77 +73,77 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm space-y-6 animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 sm:p-8">
+      <div className="w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-2xl space-y-8 animate-fade-in border border-zinc-100">
         <div className="text-center">
-          <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3 glow-primary">
-            <GraduationCap className="w-7 h-7 text-primary-foreground" />
+          <div className="w-16 h-16 rounded-[1.5rem] bg-black flex items-center justify-center mx-auto mb-5 shadow-lg">
+            <GraduationCap className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Curriculum Companion</h1>
-          <p className="text-sm text-muted-foreground mt-1">AI-Powered Academic Companion</p>
+          <h1 className="text-2xl font-bold text-black tracking-tight">Academic AI</h1>
+          <p className="text-sm text-zinc-500 mt-2">Welcome! Please enter your details.</p>
         </div>
 
         {!isSignUp && (
-          <div className="space-y-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase text-center tracking-wider">
+          <div className="space-y-4">
+            <p className="text-xs font-bold text-zinc-400 uppercase text-center tracking-widest">
               Demo Login
             </p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-3">
               {demoLogins.map((demo) => (
                 <button
                   key={demo.email}
                   onClick={() => handleDemoLogin(demo.email)}
                   disabled={isLoading}
-                  className={`p-3 rounded-lg bg-gradient-to-br ${demo.color} hover:shadow-lg transition-all disabled:opacity-50 text-white text-center`}
+                  className={`pt-5 pb-4 px-2 rounded-[1.25rem] bg-gradient-to-b ${demo.color} hover:shadow-lg transition-all disabled:opacity-50 text-white flex flex-col items-center gap-3`}
                 >
-                  <div className="flex justify-center mb-1">{demo.icon}</div>
-                  <p className="text-xs font-semibold">{demo.role}</p>
+                  <div className="bg-white/20 p-2.5 rounded-[14px] shadow-sm">{demo.icon}</div>
+                  <p className="text-[11px] font-bold tracking-wide">{demo.role}</p>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-px bg-border" />
-          <p className="text-xs text-muted-foreground">or</p>
-          <div className="flex-1 h-px bg-border" />
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-zinc-100" />
+          <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-widest">or</p>
+          <div className="flex-1 h-px bg-zinc-100" />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {isSignUp && (
             <div>
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Full Name</label>
+              <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Full Name</label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="w-full mt-1 px-3 py-2.5 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full mt-2 px-4 py-3.5 rounded-2xl bg-zinc-50/50 border border-zinc-200 text-sm text-black placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black transition-all"
                 placeholder="Alex Chen"
               />
             </div>
           )}
           <div>
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
+            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full mt-1 px-3 py-2.5 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full mt-2 px-4 py-3.5 rounded-2xl bg-zinc-50/50 border border-zinc-200 text-sm text-black placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black transition-all"
               placeholder="you@university.edu"
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Password</label>
+            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full mt-1 px-3 py-2.5 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full mt-2 px-4 py-3.5 rounded-2xl bg-zinc-50/50 border border-zinc-200 text-sm text-black placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black transition-all"
               placeholder="••••••••"
             />
           </div>
@@ -151,15 +151,15 @@ export default function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2.5 rounded-lg gradient-primary text-primary-foreground font-semibold text-sm glow-primary disabled:opacity-50 transition-opacity"
+            className="w-full py-4 rounded-2xl bg-black text-white font-bold text-sm tracking-wide disabled:opacity-50 hover:bg-zinc-800 transition-all shadow-lg shadow-black/10"
           >
             {isLoading ? "Please wait..." : isSignUp ? "Create Account" : "Sign In"}
           </button>
         </form>
 
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-center text-sm text-zinc-500 font-medium">
           {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-          <button onClick={() => setIsSignUp(!isSignUp)} className="text-primary hover:underline">
+          <button onClick={() => setIsSignUp(!isSignUp)} className="text-black font-bold hover:underline underline-offset-4">
             {isSignUp ? "Sign in" : "Sign up"}
           </button>
         </p>

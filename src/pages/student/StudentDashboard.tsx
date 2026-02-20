@@ -1,6 +1,6 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
-import { BookOpen, Brain, TrendingUp, AlertTriangle, Clock, Target } from "lucide-react";
+import { BookOpen, Brain, TrendingUp, AlertTriangle, Clock, Target, Calendar, Bell, ChevronDown } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
 
 const masteryData = [
@@ -33,9 +33,26 @@ export default function StudentDashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Welcome back, Alex</h1>
-          <p className="text-sm text-muted-foreground mt-1">Here's your academic snapshot</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+          <div>
+            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Good morning, Alex!</h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center hover:bg-black/5 transition-colors cursor-pointer border border-border/40">
+              <Calendar className="w-4 h-4 text-foreground/70" />
+            </button>
+            <button className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center hover:bg-black/5 transition-colors relative cursor-pointer border border-border/40">
+              <span className="absolute top-2.5 right-2 w-2 h-2 rounded-full bg-red-500 border border-white"></span>
+              <Bell className="w-4 h-4 text-foreground/70" />
+            </button>
+            <div className="flex items-center gap-2 bg-card rounded-full p-1 shadow-sm cursor-pointer border border-border/40 hover:bg-black/5 transition-colors pr-3">
+              <div className="w-8 h-8 rounded-full bg-zinc-200 overflow-hidden shrink-0">
+                <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Alex" alt="User" className="w-full h-full object-cover" />
+              </div>
+              <ChevronDown className="w-4 h-4 text-foreground/60" />
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
