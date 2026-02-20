@@ -1,11 +1,20 @@
 import os
 from openai import OpenAI
+from dotenv import load_dotenv
+
+# Load .env file from the project root (one level up from Academic-Agent-model)
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+load_dotenv(os.path.join(project_root, ".env"))
 
 print("Using OpenRouter Trinity LLM")
 
+api_key = os.environ.get("OPENROUTER_API_KEY")
+if not api_key:
+    raise ValueError("OPENROUTER_API_KEY not found in environment variables. Please check your .env file.")
+
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=os.environ["OPENROUTER_API_KEY"],
+    api_key=api_key,
     default_headers={
         "HTTP-Referer": "http://localhost",
         "X-Title": "Academic-Agent"
@@ -40,8 +49,7 @@ Answer:
         model=MODEL_NAME,
         messages=[
             {"role": "user", "content": prompt}
-        ],
-        extra_body={"reasoning": {"enabled": True}}
+        ]
     )
 
     msg = response.choices[0].message

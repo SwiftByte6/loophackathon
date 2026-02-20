@@ -7,3 +7,5 @@ transformers
 torch
 numpy
 langchain-text-splitters
+openai
+python-dotenv

@@ -10,21 +10,24 @@ from models.adaptiveAnswer import generate_adaptive_answer
 from models.teacherAnalytics import get_students_at_risk
 from models.integrityGuard import violates_integrity, integrity_response
 
+from models.llm_model import get_model
+
 VECTOR_DB_PATH = "vector_db"
+_index = None
+_documents = None
 
-index = faiss.read_index(f"{VECTOR_DB_PATH}/index.faiss")
-
-with open(f"{VECTOR_DB_PATH}/documents.pkl", "rb") as f:
-    documents = pickle.load(f)
-
-model = SentenceTransformer(
-    "sentence-transformers/static-retrieval-mrl-en-v1",
-    device="cpu"
-)
-
+def get_vector_db():
+    global _index, _documents
+    if _index is None or _documents is None:
+        _index = faiss.read_index(f"{VECTOR_DB_PATH}/index.faiss")
+        with open(f"{VECTOR_DB_PATH}/documents.pkl", "rb") as f:
+            _documents = pickle.load(f)
+    return _index, _documents
 
 def retrieve_context(query, top_k=3):
-
+    model = get_model()
+    index, documents = get_vector_db()
+    
     query_embedding = model.encode([query], normalize_embeddings=True)
     query_embedding = np.array(query_embedding).astype("float32")
 
